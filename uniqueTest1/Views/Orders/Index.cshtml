@@ -1,0 +1,144 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SigninManager
+@inject UserManager<IdentityUser> UserManager
+
+@model IList<uniqueTest1.Models.Order>
+
+@{
+    ViewData["Title"] = "Dishes";
+}
+
+<h2>תפריט</h2>
+<form>
+    <div class="form-group">
+        <select class="form-control" name="type" id="typeSlct"  onchange="filteredTable(this.value)"></select>
+    </div>
+</form>
+@if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Visitor"))
+{
+    <div style="float:left;">
+        <label>האם קיימת רגישות למאכלים</label>
+        @Html.CheckBox("s", Convert.ToBoolean(ViewData["chk"]), new { @onclick = "window.open(window.location.origin+'/Orders/Index/'+this.checked,'_self')" })
+    </div>
+}
+
+
+
+
+@if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+    <table class="table" id="myTable">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model[0].DishName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model[0].Price)
+                </th>
+                @if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Admin"))
+                {
+                    <th style="visibility:hidden;">
+                        @Html.DisplayNameFor(model => model[0].TypeDish)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model[0].Allergic)
+                    </th>
+
+                    <th></th>
+                }
+                </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                // create class name for allergic dishes to change style of the rows
+            <tr class="@((@item.Allergic)?"allergic":"")">
+                <td>
+                    @Html.DisplayFor(modelItem => item.DishName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td style="visibility:hidden;">
+                    @Html.DisplayFor(modelItem => item.TypeDish)
+                </td>
+
+                @if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Admin"))
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Allergic)
+                    </td>
+
+
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+
+                    </td>
+                }
+                </tr>
+            }
+        </tbody>
+    </table>
+    <script>
+        // filtered table by category
+        function filteredTable(value) {
+            console.log(value);
+            var input, filter, table, tr, td, i, txtValue;
+            txtValue = '';
+            input = value;
+            filter = input.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                tds = tr[i].getElementsByTagName("td");
+                for (var j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        txtValue = (tds[j].textContent || tds[j].innerText);
+
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            console.log('correct filter: ' + filter + ',    txtValue: ' + txtValue)
+                            tr[i].style.display = "";
+                            txtValue = '';
+                            break;
+                        } else {
+                            console.log('not filter: ' + filter + ', txtValue: ' + txtValue)
+                            tr[i].style.display = "none";
+                            txtValue = '';
+                        }
+                    }
+                }
+
+            }
+        }
+     
+        // using in ajax to call of print function to create file with dish details
+        function printInFile(id) {
+            console.log(id);
+            $.ajax('/Orders/Print?id=' + id, {
+                type: 'GET',  // http method
+                data: {},  // data to submit
+                success: function (data, status, xhr) {
+                    alert('the print success');
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    alert('the print failed');
+                }
+            });
+        };
+
+        window.onload= function () {
+            $.getJSON("/Orders/getcategories", function (result) {
+                $.each(result, function (i, field) {
+                    $("#typeSlct").append('<option value="' + i +'"'+ (i === 1 ? ' selected' : '') + '>' + field + '</option>');
+                    console.log("i = " + i + " " + "field= " + field);
+                });
+            });
+        };
+    </script>
