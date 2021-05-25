@@ -9,13 +9,15 @@ using uniqueTest1.Models;
 namespace uniqueTest1.Data
 {
     public class JsonData
-    {
+    {//data layer
+        //used in newtonsoftt librery easy and simple library for json file read/write convert to items etc.
         private Dictionary<string, string> category;
         private Order order = new Order();
         private List<Order> orders;
 
         public  JsonData()
             {
+            // it's default options for now can edit the categories.json file and add more 
             category = new Dictionary<string, string>() { { "breakfast", "ארוחת בוקר" }, { "lunch", "ארוחת צהריים" }, { "dinner", "ארוחת ערב" } };
             orders = new List<Order>();
             // file of data
@@ -101,17 +103,13 @@ namespace uniqueTest1.Data
 
         public bool Edit(int id, Order order)
         {
-      
                 if (GetAllDishes().Exists(x=>x.Id == id))
                 {
-                   
                     Delete(id);
                     orders.Add(order);
-                   
                     return PrintDish(orders);
                     
                 }
-            
             return false;
 
         }
@@ -121,15 +119,14 @@ namespace uniqueTest1.Data
             orders = GetAllDishes();
             try
             {
-                if (orders != null && orders.Exists(x => x==o))
+                if (orders != null && orders.Exists(x => x==o)) //this mean exist in list already the dish
                 {
                     return false;
                 }
                 else
                 {
-                   
                     orders.Add(o);
-                    return PrintDish(orders);
+                    return PrintDish(orders);// update file
                 }
             }
             catch (Exception ex)
@@ -157,7 +154,6 @@ namespace uniqueTest1.Data
         public  bool PrintDish(List<Order> o)
         {
             //get Dish and put all properties and values in format like JSON inside text
-
             try
             {
                 string res = JsonConvert.SerializeObject(o);
@@ -168,13 +164,12 @@ namespace uniqueTest1.Data
             }
             catch (Exception ex)
             {
-
                 return false;
             }
            
         }
-        public bool addCategory(string name)
-        {
+        public bool addCategory(string name)// we not used in this function right now but if want to add categories by input used in this
+        {                                   // the format need still to work on it
            if(category.TryGetValue(name,out string value))
             {
                 return false;
@@ -194,7 +189,7 @@ namespace uniqueTest1.Data
                 return true;
             }
         }
-        public Dictionary<string,string> getCategory()
+        public Dictionary<string,string> getCategory()//get categories from the file
         {
             if (File.Exists("Categories.json"))
             {

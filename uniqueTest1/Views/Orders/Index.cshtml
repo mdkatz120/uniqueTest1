@@ -14,6 +14,7 @@
         <select class="form-control" name="type" id="typeSlct"  onchange="filteredTable(this.value)"></select>
     </div>
 </form>
+<!-- just visitor user have option to hide allergic food-->
 @if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Visitor"))
 {
     <div style="float:left;">
@@ -24,7 +25,7 @@
 
 
 
-
+<!-- just admin can add / edit /delete dish -->
 @if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Admin"))
 {
     <p>
@@ -67,7 +68,7 @@
                 <td style="visibility:hidden;">
                     @Html.DisplayFor(modelItem => item.TypeDish)
                 </td>
-
+                <!-- just admin see checkbox of allergic and dish options -->
                 @if (SigninManager.IsSignedIn(User) && await UserManager.IsInRoleAsync(UserManager.Users.First(x => x.Email == UserManager.GetUserName(User)), "Admin"))
                 {
                     <td>
@@ -87,7 +88,7 @@
         </tbody>
     </table>
     <script>
-        // filtered table by category
+        // filtered table by category without send request to server
         function filteredTable(value) {
             console.log(value);
             var input, filter, table, tr, td, i, txtValue;
@@ -118,7 +119,7 @@
             }
         }
      
-        // using in ajax to call of print function to create file with dish details
+        // using in ajax to call of print function to create file with dish details --- not used now
         function printInFile(id) {
             console.log(id);
             $.ajax('/Orders/Print?id=' + id, {
@@ -132,7 +133,7 @@
                 }
             });
         };
-
+        //  setter of "select categories" options value and text from categorise.json file 
         window.onload= function () {
             $.getJSON("/Orders/getcategories", function (result) {
                 $.each(result, function (i, field) {

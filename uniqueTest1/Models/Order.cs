@@ -19,6 +19,7 @@ namespace uniqueTest1.Models
             [Display(Name = "קטגוריה")]
             public string TypeDish { get; set; }
         
+        //overloading operators for to have option to compare between two Dishes
         public static bool operator ==(Order a,Order b)
         {
            
@@ -28,5 +29,25 @@ namespace uniqueTest1.Models
         {
             return (a.Price != b.Price || a.TypeDish != b.TypeDish || a.DishName != b.DishName || a.Allergic != b.Allergic ? true : false);
         }
+
+        public override bool Equals(object obj)
+        {       
+            // If the passed object is null
+            if (obj == null)
+            {
+                return false;
+            }
+            if (!(obj is Order))
+            {
+                return false;
+            }
+            return this == (Order)obj;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
     }
 }

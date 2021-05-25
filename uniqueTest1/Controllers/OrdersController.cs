@@ -10,7 +10,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 
 namespace uniqueTest1.Controllers
-{
+{//service layer of controllers
     public class OrdersController : Controller
     {
         private JsonData jd;
@@ -25,52 +25,45 @@ namespace uniqueTest1.Controllers
       
         public ActionResult Index(bool  id)
         {
-            
            // var myTask = Task.Run(() => jd.GetAllDishes());
             if (jd.GetAllDishes() != null)
             {
                 orders = jd.GetAllDishes();
-                ViewData["chk"] = false;
+                ViewData["chk"] = false; // flag for visitor allergic
                 if (id)
                 {
                     ViewData["chk"] = true;
                     return View(orders.FindAll(x=>x.Allergic == false));
                 }
-                
-              //  orders = await myTask;
-               
-
             }
             else { orders.Add(new Order()); }
             return View(orders);
         }
 
+
         // GET: Orders/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return View(jd.GetDish(id));
         }
 
         // GET: Orders/Create
        
         public ActionResult Create()
         {
-            
             return View();
         }
 
         // POST: Orders/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]//second blocked for not authorized in controller by annotation 
         public ActionResult Create(Order collection)
         {
-            
             try
             {
-                collection.Id = Math.Max(id++,jd.GetAllDishes().Count());
+                collection.Id = Math.Max(id++,jd.GetAllDishes().Count());//serial id for new item
                 bool success = jd.Add(collection);
-
                 return RedirectToAction(nameof(Index));
             }
             catch(Exception ex)
@@ -109,7 +102,6 @@ namespace uniqueTest1.Controllers
         
         public ActionResult Delete(int id)
         {
-
             return View(jd.GetDish(id));
         }
 
@@ -131,16 +123,18 @@ namespace uniqueTest1.Controllers
             }
         }
         [HttpGet]
-        
         public void AddCategory(string id)
         {
             jd.addCategory(id);
         }
 
+        /// <summary>
+        /// for set categories in select
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public Dictionary<string,string> getcategories()
         {
-
             return jd.getCategory();
         }
     }
